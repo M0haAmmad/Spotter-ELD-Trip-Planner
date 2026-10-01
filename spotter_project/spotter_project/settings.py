@@ -26,9 +26,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -41,12 +41,18 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'spotter_project.urls'
 
+# Resolve frontend dist directory
+FRONTEND_DIST = (BASE_DIR.parent / 'frontend' / 'dist').resolve()
+if not FRONTEND_DIST.exists():
+    FRONTEND_DIST = (BASE_DIR / 'frontend' / 'dist').resolve()
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, '../frontend/dist'),
-            os.path.join(BASE_DIR, 'frontend/dist')
+            FRONTEND_DIST,
+            BASE_DIR.parent / 'frontend' / 'dist',
+            BASE_DIR / 'frontend' / 'dist',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -86,11 +92,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '../frontend/dist/assets'),
-]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-WHITENOISE_ROOT = os.path.join(BASE_DIR, '../frontend/dist')
 
-# Default primary key field type
+STATICFILES_DIRS = []
+if (FRONTEND_DIST / 'assets').exists():
+    STATICFILES_DIRS.append(FRONTEND_DIST / 'assets')
+if FRONTEND_DIST.exists():
+    STATICFILES_DIRS.append(FRONTEND_DIST)
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+WHITENOISE_ROOT = FRONTEND_DIST
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
