@@ -59,7 +59,11 @@ function App() {
     setApiError(null);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/calculate-trip/', {
+      const endpoint = window.location.origin.includes('517')
+        ? 'http://127.0.0.1:8000/api/calculate-trip/'
+        : '/api/calculate-trip/';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
